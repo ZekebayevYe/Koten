@@ -29,11 +29,25 @@ func NewReportRepository(db *mongo.Database) ReportRepository {
 	}
 }
 
+// Insert создает новый отчет с правильным ObjectID и заполняет поле report_id
 func (r *reportRepository) Insert(ctx context.Context, report *proto.Report) error {
-	_, err := r.collection.InsertOne(ctx, report)
+	objID := primitive.NewObjectID()
+	report.ReportId = objID.Hex() // Записываем строковое представление ObjectID
+
+	doc := bson.M{
+		"_id":         objID,
+		"user_id":     report.UserId,
+		"title":       report.Title,
+		"description": report.Description,
+		"created_at":  time.Now().Format(time.RFC3339),
+		"updated_at":  time.Now().Format(time.RFC3339),
+	}
+
+	_, err := r.collection.InsertOne(ctx, doc)
 	return err
 }
 
+// FindByUser возвращает все отчеты указанного пользователя
 func (r *reportRepository) FindByUser(ctx context.Context, userID string) ([]*proto.Report, error) {
 	cursor, err := r.collection.Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
@@ -43,20 +57,37 @@ func (r *reportRepository) FindByUser(ctx context.Context, userID string) ([]*pr
 
 	var reports []*proto.Report
 	for cursor.Next(ctx) {
-		var report proto.Report
-		if err := cursor.Decode(&report); err != nil {
+		var doc struct {
+			ID          primitive.ObjectID `bson:"_id"`
+			UserId      string             `bson:"user_id"`
+			Title       string             `bson:"title"`
+			Description string             `bson:"description"`
+			CreatedAt   string             `bson:"created_at"`
+			UpdatedAt   string             `bson:"updated_at"`
+		}
+		if err := cursor.Decode(&doc); err != nil {
 			return nil, err
 		}
-		reports = append(reports, &report)
+		report := &proto.Report{
+			ReportId:    doc.ID.Hex(),
+			UserId:      doc.UserId,
+			Title:       doc.Title,
+			Description: doc.Description,
+			CreatedAt:   doc.CreatedAt,
+			UpdatedAt:   doc.UpdatedAt,
+		}
+		reports = append(reports, report)
 	}
 	return reports, nil
 }
 
+// Update обновляет отчет по ObjectID и user_id
 func (r *reportRepository) Update(ctx context.Context, req *proto.EditReportRequest) (*proto.Report, error) {
 	objID, err := primitive.ObjectIDFromHex(req.ReportId)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("invalid report_id format")
 	}
+
 	filter := bson.M{"_id": objID, "user_id": req.UserId}
 	update := bson.M{
 		"$set": bson.M{
@@ -65,13 +96,34 @@ func (r *reportRepository) Update(ctx context.Context, req *proto.EditReportRequ
 			"updated_at":  time.Now().Format(time.RFC3339),
 		},
 	}
-	result := r.collection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	result := r.collection.FindOneAndUpdate(ctx, filter, update, opts)
 	if result.Err() != nil {
 		return nil, errors.New("report not found or update failed")
 	}
-	var updated proto.Report
-	if err := result.Decode(&updated); err != nil {
+
+	var doc struct {
+		ID          primitive.ObjectID `bson:"_id"`
+		UserId      string             `bson:"user_id"`
+		Title       string             `bson:"title"`
+		Description string             `bson:"description"`
+		CreatedAt   string             `bson:"created_at"`
+		UpdatedAt   string             `bson:"updated_at"`
+	}
+
+	if err := result.Decode(&doc); err != nil {
 		return nil, err
 	}
-	return &updated, nil
+
+	updatedReport := &proto.Report{
+		ReportId:    doc.ID.Hex(),
+		UserId:      doc.UserId,
+		Title:       doc.Title,
+		Description: doc.Description,
+		CreatedAt:   doc.CreatedAt,
+		UpdatedAt:   doc.UpdatedAt,
+	}
+
+	return updatedReport, nil
 }

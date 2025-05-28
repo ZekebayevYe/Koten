@@ -16,11 +16,18 @@ func NewNewsHandler(uc newsusecase.NewsUsecase) *NewsHandler {
 	return &NewsHandler{usecase: uc}
 }
 
-func (h *NewsHandler) GetAllNews(ctx context.Context, req *pb.Empty) (*pb.NewsList, error) {
+func (h *NewsHandler) GetNews(ctx context.Context, req *pb.Empty) (*pb.NewsList, error) {
 	newsList, err := h.usecase.GetAllNews(ctx)
 	if err != nil {
 		return nil, err
 	}
-
 	return &pb.NewsList{News: newsList}, nil
+}
+
+func (h *NewsHandler) CreateNews(ctx context.Context, req *proto.CreateNewsRequest) (*proto.NewsResponse, error) {
+	news, err := h.usecase.CreateNews(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.NewsResponse{News: news}, nil
 }
