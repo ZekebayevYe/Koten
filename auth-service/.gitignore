@@ -1,0 +1,23 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build output
+*.test
+build/
+
+# Go modules
+go.sum
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Env
+.env
