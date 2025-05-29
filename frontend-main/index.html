@@ -12,7 +12,7 @@
     <div style="display: flex; align-items: center; gap: 10px;">
       <div id="profile-icon">👤</div>
       <div id="username">Loading...</div>
-      <button id="logout-btn" style="margin-left:auto;">Logout</button>
+      <button id="logout-btn">Logout</button>
     </div>
     <h1>Welcome to the Utility Management System</h1>
     <nav>
@@ -40,10 +40,19 @@
       <div id="notifications-list">Loading...</div>
     </section>
 
-    <section id="profile" class="section">
-      <h2>My Profile</h2>
-      <div id="profile-info">Loading...</div>
-    </section>
+<section id="profile" class="section">
+  <h2>My Profile</h2>
+  <form id="profile-form">
+    <label>Full Name: <input type="text" id="full_name" required /></label><br>
+    <label>Email: <input type="email" id="email" disabled /></label><br>
+    <label>Street: <input type="text" id="street" /></label><br>
+    <label>House: <input type="text" id="house" /></label><br>
+    <label>Apartment: <input type="text" id="apartment" /></label><br>
+    <button type="submit">Update Profile</button>
+  </form>
+  <div id="profile-message" class="message" style="display:none;"></div>
+</section>
+
   </main>
 
   <div id="toast-container"></div>

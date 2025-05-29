@@ -36,7 +36,7 @@
       <h2>Register</h2>
       <form id="register-form">
         <div class="input-group">
-          <input type="text" id="register-name" placeholder="Name" required />
+          <input type="text" id="register-name" placeholder="Full Name" required />
           <i class="fa fa-user"></i>
         </div>
         <div class="input-group">
@@ -47,6 +47,21 @@
           <input type="password" id="register-password" placeholder="Password" required />
           <i class="fa fa-lock"></i>
         </div>
+        
+        <!-- Дополнительные поля (опционально) -->
+        <div class="input-group">
+          <input type="text" id="register-house" placeholder="House Number (optional)" />
+          <i class="fa fa-home"></i>
+        </div>
+        <div class="input-group">
+          <input type="text" id="register-street" placeholder="Street (optional)" />
+          <i class="fa fa-road"></i>
+        </div>
+        <div class="input-group">
+          <input type="text" id="register-apartment" placeholder="Apartment (optional)" />
+          <i class="fa fa-building"></i>
+        </div>
+        
         <button type="submit">Register</button>
         <div class="message" id="register-message"></div>
       </form>
@@ -74,7 +89,7 @@
       loginSection.classList.remove("active");
     });
 
-    // Form handlers with proper API calls
+    // Form handlers
     document.addEventListener('DOMContentLoaded', () => {
       // Login
       const loginForm = document.getElementById('login-form');
@@ -88,10 +103,10 @@
           msgElement.style.display = "block";
 
           try {
-            const email = loginForm.querySelector('input[type="email"]').value;
-            const password = loginForm.querySelector('input[type="password"]').value;
+            const email = loginForm.querySelector('#login-email').value;
+            const password = loginForm.querySelector('#login-password').value;
 
-            const res = await fetch('http://localhost:8080/api/login', {
+            const res = await fetch('/api/login', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, password })
@@ -103,7 +118,7 @@
               msgElement.textContent = "Login successful!";
               msgElement.className = "message success";
               setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = '/';
               }, 1000);
             } else {
               const error = await res.text();
@@ -129,22 +144,36 @@
           msgElement.style.display = "block";
 
           try {
-            const name = registerForm.querySelector('input[type="text"]').value;
-            const email = registerForm.querySelector('input[type="email"]').value;
-            const password = registerForm.querySelector('input[type="password"]').value;
+            const fullName = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const house = document.getElementById('register-house').value || "";
+            const street = document.getElementById('register-street').value || "";  
+            const apartment = document.getElementById('register-apartment').value || "";
 
-            const res = await fetch('http://localhost:8080/api/register', {
+            const requestBody = {
+              email: email,
+              password: password,
+              full_name: fullName,
+              house: house,
+              street: street,
+              apartment: apartment
+            };
+
+            const res = await fetch('/api/register', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, email, password })
+              body: JSON.stringify(requestBody)
             });
 
             if (res.ok) {
+              const data = await res.json();
               msgElement.textContent = 'Registration successful! Please login.';
               msgElement.className = "message success";
               setTimeout(() => {
                 document.getElementById('login-tab').click();
                 msgElement.style.display = "none";
+                registerForm.reset();
               }, 2000);
             } else {
               const error = await res.text();
