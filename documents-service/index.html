@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utility Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div id="profile-icon">👤</div>
+      <div id="username">User Name</div>
+    </div>
+    <h1>Welcome to the Utility Management System</h1>
+    <nav>
+      <button id="btn-report" onclick="showSection('report')">
+        <i class="fas fa-file-alt"></i> Reports
+      </button>
+      <button id="btn-documents" onclick="showSection('documents')" class="active">
+        <i class="fas fa-folder"></i> Documents
+      </button>
+      <button id="btn-news" onclick="showSection('news')">
+        <i class="fas fa-newspaper"></i> News
+      </button>
+      <button id="btn-profile" onclick="showSection('profile')">
+        <i class="fas fa-user"></i> Profile
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="report" class="section">
+      <h2>Your Reports</h2>
+      <input type="text" id="report-filter" placeholder="Search reports..." />
+      <div id="report-list">Loading reports...</div>
+    </section>
+    
+    <section id="documents" class="section active">
+      <h2>My Documents</h2>
+      <button id="btn-upload" onclick="openUploadModal()" class="upload-btn">
+        <i class="fas fa-upload"></i> Upload Document
+      </button>
+      <input type="text" id="document-filter" placeholder="Search documents..." />
+      <div id="documents-list">Loading documents...</div>
+    </section>
+    
+    <section id="news" class="section">
+      <h2>Community News</h2>
+      <div id="news-list">Loading news...</div>
+    </section>
+    
+    <section id="profile" class="section">
+      <h2>My Profile</h2>
+      <div id="profile-info">Loading profile...</div>
+    </section>
+  </main>
+
+  <!-- Модальное окно для загрузки документа -->
+  <div id="upload-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeUploadModal()">&times;</span>
+      <h3>Upload Document</h3>
+      <div class="file-input-container">
+        <label for="document-file" class="file-label">
+          <i class="fas fa-cloud-upload-alt"></i> Choose a file
+          <span id="file-name">No file selected</span>
+        </label>
+        <input type="file" id="document-file" onchange="updateFileName()">
+      </div>
+      <button onclick="uploadDocument()" class="upload-submit-btn">Upload</button>
+      <div id="upload-status"></div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <footer>
+    &copy; 2025 Utility Management Platform
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package document;
+
+option go_package = "./proto;documentpb";
+
+service DocumentService {
+  rpc Upload(UploadRequest) returns (UploadResponse);
+  rpc GetUserDocuments(UserRequest) returns (DocumentList);
+  rpc Download(DocumentID) returns (DocumentContent);
+  rpc Delete(DocumentID) returns (DeleteStatus);
+}
+
+message UploadRequest {
+  string user_id = 1;
+  string filename = 2;
+  bytes content = 3;
+  string type = 4;
+}
+
+message UploadResponse {
+  string document_id = 1;
+  string status = 2;
+}
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message DocumentID {
+  string document_id = 1;
+}
+
+message DocumentContent {
+  string filename = 1;
+  bytes content = 2;
+}
+
+message DeleteStatus {
+  string status = 1;
+}
+
+message Document {
+  string id = 1;
+  string filename = 2;
+  string type = 3;
+  string created_at = 4;
+}
+
+message DocumentList {
+  repeated Document documents = 1;
+}
