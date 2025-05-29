@@ -1,14 +1,17 @@
-package grpc
+package delivery
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"auth-service/config"
 	"auth-service/internal/domain"
 	"auth-service/internal/usecase"
-	"auth-service/pkg/jwt"
 	pb "auth-service/proto"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Handler struct {
@@ -17,8 +20,23 @@ type Handler struct {
 	Cfg     *config.Config
 }
 
+func getEmailFromContext(ctx context.Context) (string, error) {
+	email, ok := ctx.Value("email").(string)
+	if !ok || email == "" {
+		return "", errors.New("email not found in context")
+	}
+	return email, nil
+}
+
+func getRoleFromContext(ctx context.Context) (string, error) {
+	role, ok := ctx.Value("role").(string)
+	if !ok || role == "" {
+		return "", errors.New("role not found in context")
+	}
+	return role, nil
+}
+
 func (h *Handler) RegisterUser(ctx context.Context, req *pb.RegisterRequest) (*pb.AuthResponse, error) {
-	fmt.Println("[RegisterUser] request:", req)
 	user := &domain.User{
 		Email:     req.Email,
 		Password:  req.Password,
@@ -30,38 +48,36 @@ func (h *Handler) RegisterUser(ctx context.Context, req *pb.RegisterRequest) (*p
 
 	token, err := h.Usecase.Register(ctx, user)
 	if err != nil {
-		fmt.Println("[RegisterUser] error:", err)
 		return nil, err
 	}
-	fmt.Println("[RegisterUser] token:", token)
 
 	return &pb.AuthResponse{Token: token}, nil
 }
 
 func (h *Handler) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.AuthResponse, error) {
-	fmt.Println("[LoginUser] request: email =", req.Email, "password =", req.Password)
 
 	token, err := h.Usecase.Login(ctx, req.Email, req.Password)
 	if err != nil {
-		fmt.Println("[LoginUser] error:", err)
 		return nil, err
 	}
-	fmt.Println("[LoginUser] token:", token)
 
 	return &pb.AuthResponse{Token: token}, nil
 }
 
 func (h *Handler) GetMyProfile(ctx context.Context, req *pb.GetMyProfileRequest) (*pb.UserProfile, error) {
-	fmt.Println("[GetMyProfile] token:", req.Token)
-	email, role, err := jwt.ParseToken(req.Token, h.Cfg.JWTSecret)
+	email, err := getEmailFromContext(ctx)
 	if err != nil {
-		fmt.Println("[GetMyProfile] token parse error:", err)
-		return nil, err
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized: %v", err)
 	}
+
+	role, err := getRoleFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized: %v", err)
+	}
+
 
 	user, err := h.Usecase.GetProfile(ctx, email)
 	if err != nil {
-		fmt.Println("[GetMyProfile] error:", err)
 		return nil, err
 	}
 
@@ -76,11 +92,15 @@ func (h *Handler) GetMyProfile(ctx context.Context, req *pb.GetMyProfileRequest)
 }
 
 func (h *Handler) UpdateMyProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.UserProfile, error) {
-	fmt.Println("[UpdateMyProfile] request:", req)
-	email, _, err := jwt.ParseToken(req.Token, h.Cfg.JWTSecret)
+
+	email, err := getEmailFromContext(ctx)
 	if err != nil {
-		fmt.Println("[UpdateMyProfile] token parse error:", err)
-		return nil, err
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized: %v", err)
+	}
+
+	role, err := getRoleFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "unauthorized: %v", err)
 	}
 
 	updated := &domain.User{
@@ -99,7 +119,7 @@ func (h *Handler) UpdateMyProfile(ctx context.Context, req *pb.UpdateProfileRequ
 	return &pb.UserProfile{
 		Email:     user.Email,
 		FullName:  user.FullName,
-		Role:      user.Role,
+		Role:      role,
 		House:     user.House,
 		Street:    user.Street,
 		Apartment: user.Apartment,

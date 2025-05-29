@@ -36,7 +36,7 @@
       <h2>Register</h2>
       <form id="register-form">
         <div class="input-group">
-          <input type="text" id="register-name" placeholder="Name" required />
+          <input type="text" id="register-name" placeholder="Full Name" required />
           <i class="fa fa-user"></i>
         </div>
         <div class="input-group">
@@ -47,6 +47,21 @@
           <input type="password" id="register-password" placeholder="Password" required />
           <i class="fa fa-lock"></i>
         </div>
+        
+        <!-- Дополнительные поля (опционально) -->
+        <div class="input-group">
+          <input type="text" id="register-house" placeholder="House Number (optional)" />
+          <i class="fa fa-home"></i>
+        </div>
+        <div class="input-group">
+          <input type="text" id="register-street" placeholder="Street (optional)" />
+          <i class="fa fa-road"></i>
+        </div>
+        <div class="input-group">
+          <input type="text" id="register-apartment" placeholder="Apartment (optional)" />
+          <i class="fa fa-building"></i>
+        </div>
+        
         <button type="submit">Register</button>
         <div class="message" id="register-message"></div>
       </form>
@@ -54,6 +69,7 @@
   </main>
 
   <script>
+    // Tab switching
     const loginTab = document.getElementById("login-tab");
     const registerTab = document.getElementById("register-tab");
     const loginSection = document.getElementById("login-section");
@@ -73,21 +89,103 @@
       loginSection.classList.remove("active");
     });
 
-    // Пример вывода сообщения (можно удалить если не нужно)
-    document.getElementById("login-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("login-message");
-      msg.textContent = "Logging in...";
-      msg.className = "message success";
-      msg.style.display = "block";
-    });
+    // Form handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Login
+      const loginForm = document.getElementById('login-form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const msgElement = document.getElementById("login-message");
+          msgElement.textContent = "Logging in...";
+          msgElement.className = "message";
+          msgElement.style.display = "block";
 
-    document.getElementById("register-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("register-message");
-      msg.textContent = "Registering...";
-      msg.className = "message success";
-      msg.style.display = "block";
+          try {
+            const email = loginForm.querySelector('#login-email').value;
+            const password = loginForm.querySelector('#login-password').value;
+
+            const res = await fetch('/api/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              localStorage.setItem('token', data.token);
+              msgElement.textContent = "Login successful!";
+              msgElement.className = "message success";
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1000);
+            } else {
+              const error = await res.text();
+              msgElement.textContent = 'Login failed: ' + error;
+              msgElement.className = "message error";
+            }
+          } catch (err) {
+            msgElement.textContent = 'Network error: ' + err.message;
+            msgElement.className = "message error";
+          }
+        });
+      }
+
+      // Register
+      const registerForm = document.getElementById('register-form');
+      if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const msgElement = document.getElementById("register-message");
+          msgElement.textContent = "Registering...";
+          msgElement.className = "message";
+          msgElement.style.display = "block";
+
+          try {
+            const fullName = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const house = document.getElementById('register-house').value || "";
+            const street = document.getElementById('register-street').value || "";  
+            const apartment = document.getElementById('register-apartment').value || "";
+
+            const requestBody = {
+              email: email,
+              password: password,
+              full_name: fullName,
+              house: house,
+              street: street,
+              apartment: apartment
+            };
+
+            const res = await fetch('/api/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(requestBody)
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              msgElement.textContent = 'Registration successful! Please login.';
+              msgElement.className = "message success";
+              setTimeout(() => {
+                document.getElementById('login-tab').click();
+                msgElement.style.display = "none";
+                registerForm.reset();
+              }, 2000);
+            } else {
+              const error = await res.text();
+              msgElement.textContent = 'Registration failed: ' + error;
+              msgElement.className = "message error";
+            }
+          } catch (err) {
+            msgElement.textContent = 'Network error: ' + err.message;
+            msgElement.className = "message error";
+          }
+        });
+      }
     });
   </script>
 </body>
