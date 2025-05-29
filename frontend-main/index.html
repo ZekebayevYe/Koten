@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Utility Management System</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-K7ZVTfLl1u+N2jCHguKyZTw7MP7CwK52CDGF9ztQ0xDAl5y5e+1BbknuPYVt1eLAXQjLEcRw+vR8hv2ztld7Hg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
   <header>
@@ -16,17 +16,22 @@
     </div>
     <h1>Welcome to the Utility Management System</h1>
     <nav>
-      <button id="btn-report" onclick="showSection('report')" class="active"><i class="fas fa-file-alt"></i> Reports</button>
-      <button id="btn-news" onclick="showSection('news')"><i class="fas fa-newspaper"></i> News</button>
-      <button id="btn-notifications" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications</button>
-      <button id="btn-profile" onclick="showSection('profile')"><i class="fas fa-user"></i> Profile</button>
+      <button onclick="showSection('report')" class="active"><i class="fas fa-file-alt"></i> Reports</button>
+      <button onclick="showSection('news')"><i class="fas fa-newspaper"></i> News</button>
+      <button onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications</button>
+      <button onclick="showSection('profile')"><i class="fas fa-user"></i> Profile</button>
     </nav>
   </header>
 
   <main>
     <section id="report" class="section active">
       <h2>Your Reports</h2>
-      <input type="text" id="report-filter" placeholder="Search reports..." />
+      <form id="report-form">
+        <input type="hidden" id="report-id" />
+        <input type="text" id="report-title" placeholder="Title" required />
+        <textarea id="report-content" placeholder="Content" required></textarea>
+        <button type="submit">Save Report</button>
+      </form>
       <div id="report-list">Loading...</div>
     </section>
 
@@ -40,22 +45,19 @@
       <div id="notifications-list">Loading...</div>
     </section>
 
-<section id="profile" class="section">
-  <h2>My Profile</h2>
-  <form id="profile-form">
-    <label>Full Name: <input type="text" id="full_name" required /></label><br>
-    <label>Email: <input type="email" id="email" disabled /></label><br>
-    <label>Street: <input type="text" id="street" /></label><br>
-    <label>House: <input type="text" id="house" /></label><br>
-    <label>Apartment: <input type="text" id="apartment" /></label><br>
-    <button type="submit">Update Profile</button>
-  </form>
-  <div id="profile-message" class="message" style="display:none;"></div>
-</section>
-
+    <section id="profile" class="section">
+      <h2>My Profile</h2>
+      <form id="profile-form">
+        <label>Full Name: <input type="text" id="full_name" required /></label><br>
+        <label>Email: <input type="email" id="email" disabled /></label><br>
+        <label>Street: <input type="text" id="street" /></label><br>
+        <label>House: <input type="text" id="house" /></label><br>
+        <label>Apartment: <input type="text" id="apartment" /></label><br>
+        <button type="submit">Update Profile</button>
+      </form>
+      <div id="profile-message" class="message" style="display:none;"></div>
+    </section>
   </main>
-
-  <div id="toast-container"></div>
 
   <footer style="text-align:center;margin-top:30px;color:#777;font-size:14px;">
     &copy; 2025 Utility Management Platform

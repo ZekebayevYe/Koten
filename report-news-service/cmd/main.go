@@ -49,7 +49,7 @@ func main() {
 	go func() {
 		httpRouter := gin.Default()
 		httpRouter.GET("/metrics", gin.WrapH(promhttp.Handler()))
-		httpRouter.Run(":9090")
+		httpRouter.Run(":9091")
 	}()
 
 	// Report service wiring
