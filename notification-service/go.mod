@@ -1,4 +1,4 @@
-module github.com/erazz/outage-service
+module github.com/ZekebayevYe/notification-service
 
 go 1.23.0
 
@@ -6,16 +6,19 @@ toolchain go1.23.4
 
 require (
 	github.com/joho/godotenv v1.5.1
-	github.com/nats-io/nats.go v1.41.2
+	github.com/mailersend/mailersend-go v1.6.1
+	github.com/nats-io/nats.go v1.42.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/stretchr/testify v1.10.0
 	go.mongodb.org/mongo-driver v1.17.3
-	google.golang.org/grpc v1.72.0
-	google.golang.org/protobuf v1.36.5
+	google.golang.org/grpc v1.72.2
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/nats-io/nkeys v0.4.11 // indirect
