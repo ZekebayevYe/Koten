@@ -12,6 +12,7 @@ type Config struct {
 	JWTSecret         string
 	Port              string
 	ReportServiceAddr string
+	NewsServiceAddr   string
 }
 
 func Load() *Config {
