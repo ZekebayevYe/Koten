@@ -10,6 +10,7 @@ import (
 type Config struct {
 	AuthServiceAddr   string
 	JWTSecret         string
+	Port              string
 	ReportServiceAddr string
 }
 
@@ -23,5 +24,6 @@ func Load() *Config {
 		AuthServiceAddr:   os.Getenv("AUTH_SERVICE_ADDR"),
 		ReportServiceAddr: os.Getenv("REPORT_SERVICE_ADDR"),
 		JWTSecret:         os.Getenv("JWT_SECRET"),
+		Port:              os.Getenv("PORT"),
 	}
 }

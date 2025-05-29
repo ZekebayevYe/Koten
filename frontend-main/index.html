@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Utility Management System</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-K7ZVTfLl1u+N2jCHguKyZTw7MP7CwK52CDGF9ztQ0xDAl5y5e+1BbknuPYVt1eLAXQjLEcRw+vR8hv2ztld7Hg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <header>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div id="profile-icon">👤</div>
+      <div id="username">Loading...</div>
+      <button id="logout-btn" style="margin-left:auto;">Logout</button>
+    </div>
+    <h1>Welcome to the Utility Management System</h1>
+    <nav>
+      <button id="btn-report" onclick="showSection('report')" class="active"><i class="fas fa-file-alt"></i> Reports</button>
+      <button id="btn-news" onclick="showSection('news')"><i class="fas fa-newspaper"></i> News</button>
+      <button id="btn-notifications" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications</button>
+      <button id="btn-profile" onclick="showSection('profile')"><i class="fas fa-user"></i> Profile</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="report" class="section active">
+      <h2>Your Reports</h2>
+      <input type="text" id="report-filter" placeholder="Search reports..." />
+      <div id="report-list">Loading...</div>
+    </section>
+
+    <section id="news" class="section">
+      <h2>Community News</h2>
+      <div id="news-list">Loading...</div>
+    </section>
+
+    <section id="notifications" class="section">
+      <h2>System Notifications</h2>
+      <div id="notifications-list">Loading...</div>
+    </section>
+
+    <section id="profile" class="section">
+      <h2>My Profile</h2>
+      <div id="profile-info">Loading...</div>
+    </section>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <footer style="text-align:center;margin-top:30px;color:#777;font-size:14px;">
+    &copy; 2025 Utility Management Platform
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

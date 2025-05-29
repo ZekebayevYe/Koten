@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"auth-service/config"
 	"auth-service/internal/domain"
@@ -17,6 +18,7 @@ type Handler struct {
 }
 
 func (h *Handler) RegisterUser(ctx context.Context, req *pb.RegisterRequest) (*pb.AuthResponse, error) {
+	fmt.Println("[RegisterUser] request:", req)
 	user := &domain.User{
 		Email:     req.Email,
 		Password:  req.Password,
@@ -27,22 +29,39 @@ func (h *Handler) RegisterUser(ctx context.Context, req *pb.RegisterRequest) (*p
 	}
 
 	token, err := h.Usecase.Register(ctx, user)
-	return &pb.AuthResponse{Token: token}, err
+	if err != nil {
+		fmt.Println("[RegisterUser] error:", err)
+		return nil, err
+	}
+	fmt.Println("[RegisterUser] token:", token)
+
+	return &pb.AuthResponse{Token: token}, nil
 }
 
 func (h *Handler) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.AuthResponse, error) {
+	fmt.Println("[LoginUser] request: email =", req.Email, "password =", req.Password)
+
 	token, err := h.Usecase.Login(ctx, req.Email, req.Password)
-	return &pb.AuthResponse{Token: token}, err
+	if err != nil {
+		fmt.Println("[LoginUser] error:", err)
+		return nil, err
+	}
+	fmt.Println("[LoginUser] token:", token)
+
+	return &pb.AuthResponse{Token: token}, nil
 }
 
 func (h *Handler) GetMyProfile(ctx context.Context, req *pb.GetMyProfileRequest) (*pb.UserProfile, error) {
+	fmt.Println("[GetMyProfile] token:", req.Token)
 	email, role, err := jwt.ParseToken(req.Token, h.Cfg.JWTSecret)
 	if err != nil {
+		fmt.Println("[GetMyProfile] token parse error:", err)
 		return nil, err
 	}
 
 	user, err := h.Usecase.GetProfile(ctx, email)
 	if err != nil {
+		fmt.Println("[GetMyProfile] error:", err)
 		return nil, err
 	}
 
@@ -57,8 +76,10 @@ func (h *Handler) GetMyProfile(ctx context.Context, req *pb.GetMyProfileRequest)
 }
 
 func (h *Handler) UpdateMyProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.UserProfile, error) {
+	fmt.Println("[UpdateMyProfile] request:", req)
 	email, _, err := jwt.ParseToken(req.Token, h.Cfg.JWTSecret)
 	if err != nil {
+		fmt.Println("[UpdateMyProfile] token parse error:", err)
 		return nil, err
 	}
 
@@ -71,6 +92,7 @@ func (h *Handler) UpdateMyProfile(ctx context.Context, req *pb.UpdateProfileRequ
 
 	user, err := h.Usecase.UpdateProfile(ctx, email, updated)
 	if err != nil {
+		fmt.Println("[UpdateMyProfile] error:", err)
 		return nil, err
 	}
 
