@@ -3,5 +3,10 @@ go 1.24.2
 use (
 	./api-gateway-service
 	./auth-service
+<<<<<<< HEAD
 	./documents-service
+=======
+	./notification-service
+	./report-news-service
+>>>>>>> e05d0bcd9c99f1a4ea97720602b44b19303f0ef8
 )
