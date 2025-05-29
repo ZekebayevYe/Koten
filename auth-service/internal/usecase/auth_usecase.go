@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,12 +14,13 @@ import (
 )
 
 type AuthUsecase struct {
-	repo   domain.UserRepository
-	config *config.Config
+	repo      domain.UserRepository
+	publisher domain.EventPublisher
+	config    *config.Config
 }
 
-func NewAuthUsecase(repo domain.UserRepository, cfg *config.Config) *AuthUsecase {
-	return &AuthUsecase{repo: repo, config: cfg}
+func NewAuthUsecase(repo domain.UserRepository, publisher domain.EventPublisher, cfg *config.Config) *AuthUsecase {
+	return &AuthUsecase{repo: repo, publisher: publisher, config: cfg}
 }
 
 func (u *AuthUsecase) Register(ctx context.Context, user *domain.User) (string, error) {
@@ -38,7 +40,17 @@ func (u *AuthUsecase) Register(ctx context.Context, user *domain.User) (string, 
 		return "", err
 	}
 
-	token, err := jwt.GenerateToken(user.Email, user.Role, u.config.JWTSecret, u.config.JWTExpiresIn)
+	event := map[string]string{
+		"email": user.Email,
+		"role":  user.Role,
+	}
+	eventData, _ := json.Marshal(event)
+
+	if err := u.publisher.Publish(ctx, "user.registered", eventData); err != nil {
+		fmt.Println("[Register] failed to publish user.registered:", err)
+	}
+
+	token, err := jwt.GenerateToken(user.Email, user.Role)
 	if err != nil {
 		fmt.Println("[Register] token generation error:", err)
 		return "", err
@@ -66,7 +78,7 @@ func (u *AuthUsecase) Login(ctx context.Context, email, password string) (string
 
 	fmt.Println("[Login] password matched for email:", email)
 
-	token, err := jwt.GenerateToken(user.Email, user.Role, u.config.JWTSecret, u.config.JWTExpiresIn)
+	token, err := jwt.GenerateToken(user.Email, user.Role)
 	if err != nil {
 		fmt.Println("[Login] token generation failed:", err)
 		return "", err

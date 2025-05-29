@@ -6,11 +6,24 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"google.golang.org/grpc/metadata"
 )
 
 type AuthHandler struct {
 	Client pb.AuthServiceClient
 	Cfg    *config.Config
+}
+
+// 🔥 ДОБАВЛЕНО: функция для передачи токена в gRPC metadata
+func forwardAuthToken(r *http.Request, ctx context.Context) context.Context {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader != "" {
+		// Передаем токен в gRPC metadata
+		md := metadata.Pairs("authorization", authHeader)
+		ctx = metadata.NewOutgoingContext(ctx, md)
+	}
+	return ctx
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -47,10 +60,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-
+// 🔥 ИСПРАВЛЕНО: GetProfile с передачей токена через metadata
 func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("Authorization")
-	resp, err := h.Client.GetMyProfile(context.Background(), &pb.GetMyProfileRequest{Token: token})
+	ctx := context.Background()
+
+	// Передаем токен в gRPC metadata
+	ctx = forwardAuthToken(r, ctx)
+
+	resp, err := h.Client.GetMyProfile(ctx, &pb.GetMyProfileRequest{})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -58,8 +75,12 @@ func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+// 🔥 ИСПРАВЛЕНО: UpdateProfile с передачей токена через metadata
 func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("Authorization")
+	ctx := context.Background()
+
+	// Передаем токен в gRPC metadata
+	ctx = forwardAuthToken(r, ctx)
 
 	var req pb.UpdateProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -67,8 +88,8 @@ func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req.Token = token
-	res, err := h.Client.UpdateMyProfile(context.Background(), &req)
+	// Убираем Token из request, так как он теперь в metadata
+	res, err := h.Client.UpdateMyProfile(ctx, &req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -27,22 +27,17 @@ func main() {
 	apiMux.Handle("/profile", middleware.AuthMiddleware(cfg, http.HandlerFunc(authHandler.GetProfile)))
 	apiMux.Handle("/update-profile", middleware.AuthMiddleware(cfg, http.HandlerFunc(authHandler.UpdateProfile)))
 
-	// Main router
 	mainMux := http.NewServeMux()
 
-	// Serve API under /api
 	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
 
-	// Serve login page at /login
 	mainMux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../frontend-main/login.html")
 	})
 
-	// Serve other static files
 	fs := http.FileServer(http.Dir("../frontend-main"))
 	mainMux.Handle("/", fs)
 
-	// Add CORS
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080", "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
