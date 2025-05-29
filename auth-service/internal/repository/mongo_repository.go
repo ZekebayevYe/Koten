@@ -3,14 +3,13 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"auth-service/internal/domain"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type MongoUserRepository struct {
@@ -26,24 +25,21 @@ func NewMongoUserRepository(db *mongo.Database, collectionName string) *MongoUse
 func (r *MongoUserRepository) CreateUser(ctx context.Context, user *domain.User) error {
 	count, err := r.collection.CountDocuments(ctx, bson.M{"email": user.Email})
 	if err != nil {
+		fmt.Println("[MongoRepo] CountDocuments error:", err)
 		return err
 	}
 	if count > 0 {
 		return errors.New("user with this email already exists")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	user.Password = string(hashedPassword)
-
-	// Устанавливаем время создания и обновления
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
 	_, err = r.collection.InsertOne(ctx, user)
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *MongoUserRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
@@ -78,6 +74,5 @@ func (r *MongoUserRepository) UpdateUser(ctx context.Context, email string, upda
 		}
 		return nil, err
 	}
-
 	return &updatedUser, nil
 }

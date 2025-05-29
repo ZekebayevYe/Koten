@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+
+service ReportService {
+  rpc CreateReport(CreateReportRequest) returns (ReportResponse);
+  rpc GetReportsByUser(UserRequest) returns (ReportsResponse);
+  rpc EditReport(EditReportRequest) returns (ReportResponse);
+}
+
+message CreateReportRequest {
+  string user_id = 1;
+  string title = 2;
+  string description = 3;
+}
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message EditReportRequest {
+  string report_id = 1;
+  string user_id = 2;
+  string title = 3;
+  string description = 4;
+}
+
+message Report {
+  string report_id = 1;
+  string user_id = 2;
+  string title = 3;
+  string description = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message ReportResponse {
+  Report report = 1;
+}
+
+message ReportsResponse {
+  repeated Report reports = 1;
+}

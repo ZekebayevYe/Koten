@@ -12,6 +12,7 @@ type Config struct {
 	MongoDB      string
 	JWTSecret    string
 	JWTExpiresIn string
+	NATSUrl      string
 }
 
 func Load() *Config {
@@ -25,5 +26,6 @@ func Load() *Config {
 		MongoDB:      os.Getenv("MONGO_DB"),
 		JWTSecret:    os.Getenv("JWT_SECRET"),
 		JWTExpiresIn: os.Getenv("JWT_EXPIRATION"),
+		NATSUrl:      os.Getenv("NATS_URL"),
 	}
 }

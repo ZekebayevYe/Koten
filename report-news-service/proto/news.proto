@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+message News {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string image_url = 4;
+  string date = 5;
+}
+
+message CreateNewsRequest {
+  string news_id = 1;
+  string image_url = 2;
+  string title = 3;
+  string description = 4;
+}
+
+message NewsResponse {
+  News news = 1;
+}
+
+message NewsList {
+  repeated News news = 1;
+}
+
+message Empty {}
+
+service NewsService {
+  rpc CreateNews(CreateNewsRequest) returns (NewsResponse);
+  rpc GetNews(Empty) returns (NewsList);
+}
