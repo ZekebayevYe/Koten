@@ -16,7 +16,6 @@ const (
 	ContextKeyRole  contextKey = "role"
 )
 
-// JWTMiddleware для HTTP (можно адаптировать под gRPC)
 func JWTMiddleware(jwtSecret string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
