@@ -17,14 +17,9 @@ type AuthHandler struct {
 	Cfg    *config.Config
 }
 
-// 🔥 УЛУЧШЕНО: функция для передачи токена в gRPC metadata
 func forwardAuthToken(r *http.Request, ctx context.Context) context.Context {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader != "" {
-		// Логируем для отладки
-		fmt.Println("[forwardAuthToken] Authorization header:", authHeader)
-
-		// Передаем токен в gRPC metadata
 		md := metadata.Pairs("authorization", authHeader)
 		ctx = metadata.NewOutgoingContext(ctx, md)
 	} else {
@@ -33,7 +28,6 @@ func forwardAuthToken(r *http.Request, ctx context.Context) context.Context {
 	return ctx
 }
 
-// 🔥 НОВАЯ: функция для обработки ошибок
 func handleGRPCError(w http.ResponseWriter, err error) {
 	if err == nil {
 		return
@@ -59,7 +53,6 @@ func handleGRPCError(w http.ResponseWriter, err error) {
 	}
 }
 
-// 🔥 УЛУЧШЕНО: функция для установки JSON заголовков
 func setJSONHeaders(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -68,9 +61,6 @@ func setJSONHeaders(w http.ResponseWriter) {
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[Register] Processing registration request")
-
-	// Устанавливаем заголовки
 	setJSONHeaders(w)
 
 	var req pb.RegisterRequest
@@ -80,10 +70,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Логируем запрос (без пароля)
-	fmt.Printf("[Register] Request: email=%s, full_name=%s, house=%s, street=%s, apartment=%s\n",
-		req.Email, req.FullName, req.House, req.Street, req.Apartment)
-
 	resp, err := h.Client.RegisterUser(context.Background(), &req)
 	if err != nil {
 		fmt.Println("[Register] gRPC error:", err)
@@ -91,7 +77,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("[Register] Success, token generated")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
 		"token":   resp.Token,
@@ -100,8 +85,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[Login] Processing login request")
-
 	setJSONHeaders(w)
 
 	var req pb.LoginRequest
@@ -111,16 +94,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("[Login] Request: email=%s\n", req.Email)
-
 	res, err := h.Client.LoginUser(context.Background(), &req)
 	if err != nil {
-		fmt.Println("[Login] gRPC error:", err)
 		handleGRPCError(w, err)
 		return
 	}
 
-	fmt.Println("[Login] Success, token generated")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"token":   res.Token,
@@ -128,9 +107,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// 🔥 ИСПРАВЛЕНО: GetProfile с лучшей обработкой ошибок
 func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[GetProfile] Processing get profile request")
 
 	setJSONHeaders(w)
 
@@ -139,20 +116,15 @@ func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.Client.GetMyProfile(ctx, &pb.GetMyProfileRequest{})
 	if err != nil {
-		fmt.Println("[GetProfile] gRPC error:", err)
 		handleGRPCError(w, err)
 		return
 	}
 
-	fmt.Printf("[GetProfile] Success: email=%s, role=%s\n", resp.Email, resp.Role)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp)
 }
 
-// 🔥 ИСПРАВЛЕНО: UpdateProfile с лучшей обработкой
 func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[UpdateProfile] Processing update profile request")
-
 	setJSONHeaders(w)
 
 	ctx := context.Background()
@@ -165,9 +137,6 @@ func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("[UpdateProfile] Request: full_name=%s, house=%s, street=%s, apartment=%s\n",
-		req.FullName, req.House, req.Street, req.Apartment)
-
 	res, err := h.Client.UpdateMyProfile(ctx, &req)
 	if err != nil {
 		fmt.Println("[UpdateProfile] gRPC error:", err)
@@ -175,7 +144,6 @@ func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("[UpdateProfile] Success: email=%s\n", res.Email)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"data":    res,
@@ -183,7 +151,6 @@ func (h *AuthHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// 🔥 НОВОЕ: Middleware для логирования запросов
 func (h *AuthHandler) LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("[%s] %s %s\n", r.Method, r.URL.Path, r.Header.Get("Authorization"))
@@ -191,7 +158,6 @@ func (h *AuthHandler) LoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// 🔥 НОВОЕ: OPTIONS handler для CORS
 func (h *AuthHandler) HandleOptions(w http.ResponseWriter, r *http.Request) {
 	setJSONHeaders(w)
 	w.WriteHeader(http.StatusOK)

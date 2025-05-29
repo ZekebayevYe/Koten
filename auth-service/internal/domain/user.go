@@ -9,7 +9,7 @@ type User struct {
 	Email     string    `bson:"email"`
 	Password  string    `bson:"password"`
 	FullName  string    `bson:"full_name"`
-	Role      string    `bson:"role"` // default: user
+	Role      string    `bson:"role"` 
 	House     string    `bson:"house"`
 	Street    string    `bson:"street"`
 	Apartment string    `bson:"apartment"`

@@ -20,7 +20,6 @@ func main() {
 		Cfg:    cfg,
 	}
 
-	// API routes
 	apiMux := http.NewServeMux()
 	apiMux.HandleFunc("/register", authHandler.Register)
 	apiMux.HandleFunc("/login", authHandler.Login)

@@ -13,13 +13,10 @@ import (
 )
 
 func NewAuthServiceClient(cfg *config.Config) pb.AuthServiceClient {
-	fmt.Printf("[NewAuthServiceClient] Connecting to auth service at: %s\n", cfg.AuthServiceAddr)
-	
-	// 🔥 УЛУЧШЕНО: Добавляем опции подключения
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithBlock(), // Ждем подключения
-		grpc.WithTimeout(10 * time.Second), // Таймаут подключения
+		grpc.WithBlock(), 
+		grpc.WithTimeout(10 * time.Second), 
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:                10 * time.Second,
 			Timeout:             3 * time.Second,
@@ -32,7 +29,6 @@ func NewAuthServiceClient(cfg *config.Config) pb.AuthServiceClient {
 		log.Fatalf("Failed to connect to auth-service at %s: %v", cfg.AuthServiceAddr, err)
 	}
 	
-	// Проверяем состояние подключения
 	state := conn.GetState()
 	fmt.Printf("[NewAuthServiceClient] Connection state: %s\n", state.String())
 	
@@ -46,8 +42,6 @@ func NewAuthServiceClient(cfg *config.Config) pb.AuthServiceClient {
 	return client
 }
 
-// 🔥 НОВОЕ: Функция для проверки подключения
 func CheckConnection(client pb.AuthServiceClient) error {
-	// Можно добавить health check если нужно
 	return nil
 }
