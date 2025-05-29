@@ -79,6 +79,5 @@ func main() {
 
 	// HTTP server stub
 	r := gin.Default()
-	// You can add HTTP endpoints here if needed
 	r.Run(":8080")
 }
