@@ -20,6 +20,13 @@ func main() {
 	apiMux.Handle("/profile", middleware.AuthMiddleware(cfg, http.HandlerFunc(authHandler.GetProfile)))
 	//apiMux.Handle("/update-profile", middleware.AuthMiddleware(cfg, http.HandlerFunc(authHandler.UpdateProfile)))
 
+	reportClient := client.NewReportServiceClient(cfg)
+	reportHandler := &handler.ReportHandler{Client: reportClient}
+
+	apiMux.Handle("/report/create", middleware.AuthMiddleware(cfg, http.HandlerFunc(reportHandler.CreateReport)))
+	apiMux.Handle("/report/user", middleware.AuthMiddleware(cfg, http.HandlerFunc(reportHandler.GetReportsByUser)))
+	apiMux.Handle("/report/edit", middleware.AuthMiddleware(cfg, http.HandlerFunc(reportHandler.EditReport)))
+
 	mainMux := http.NewServeMux()
 	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
 

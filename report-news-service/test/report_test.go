@@ -29,7 +29,7 @@ func (m *mockReportRepo) Update(ctx context.Context, req *proto.EditReportReques
 		UserId:      req.UserId,
 		Title:       req.Title,
 		Description: req.Description,
-		UpdatedAt:   "now", // simplified for test
+		UpdatedAt:   "now",
 	}, nil
 }
 
