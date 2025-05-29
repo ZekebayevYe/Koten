@@ -21,7 +21,7 @@ func main() {
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(cfg.MongoURI))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to MongoDB:", err)
 	}
 	defer client.Disconnect(context.TODO())
 
@@ -31,7 +31,7 @@ func main() {
 
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to listen on :50051:", err)
 	}
 
 	s := grpc.NewServer()
@@ -39,6 +39,6 @@ func main() {
 
 	log.Println("AuthService started on :50051")
 	if err := s.Serve(lis); err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to serve gRPC:", err)
 	}
 }

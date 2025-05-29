@@ -28,9 +28,21 @@ function showToast(message) {
   setTimeout(() => toast.remove(), 3000);
 }
 
+function fetchWithAuth(url) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "login.html";
+    return Promise.reject("No token");
+  }
+
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 function fetchReports() {
   showLoader("report-list");
-  fetch("http://localhost:8080/api/reports")
+  fetchWithAuth("http://localhost:8080/api/reports")
     .then((res) => res.json())
     .then((data) => {
       window._reportsData = data;
@@ -49,7 +61,7 @@ function renderReports(data) {
 
 function fetchNews() {
   showLoader("news-list");
-  fetch("http://localhost:8080/api/news")
+  fetchWithAuth("http://localhost:8080/api/news")
     .then((res) => res.json())
     .then((data) => {
       document.getElementById("news-list").innerHTML = data.map(n => `<p><strong>${n.date}</strong>: ${n.text}</p>`).join("");
@@ -62,7 +74,7 @@ function fetchNews() {
 
 function fetchNotifications() {
   showLoader("notifications-list");
-  fetch("http://localhost:8080/api/notifications")
+  fetchWithAuth("http://localhost:8080/api/notifications")
     .then((res) => res.json())
     .then((data) => {
       document.getElementById("notifications-list").innerHTML = data.map(n => `<p>${n.message}</p>`).join("");
@@ -75,15 +87,19 @@ function fetchNotifications() {
 
 function fetchProfile() {
   showLoader("profile-info");
-  fetch("http://localhost:8080/api/profile")
-    .then((res) => res.json())
+  fetchWithAuth("http://localhost:8080/api/profile")
+    .then((res) => {
+      if (!res.ok) throw new Error("Unauthorized");
+      return res.json();
+    })
     .then((data) => {
       document.getElementById("profile-info").innerHTML = `<p>Name: ${data.name}</p><p>Email: ${data.email}</p>`;
       document.getElementById("username").textContent = data.name;
       showToast("Profile loaded");
     })
     .catch(() => {
-      document.getElementById("profile-info").textContent = "Failed to load profile";
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
     });
 }
 
@@ -112,7 +128,22 @@ function initReportFilter() {
   });
 }
 
+function initLogout() {
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+    return;
+  }
+
   const lastSection = localStorage.getItem("activeSection") || "report";
   showSection(lastSection);
   fetchReports();
@@ -121,4 +152,5 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchProfile();
   initThemeToggle();
   initReportFilter();
+  initLogout();
 });

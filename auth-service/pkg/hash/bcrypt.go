@@ -8,7 +8,11 @@ import (
 
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes), err
+	if err != nil {
+		fmt.Println("[HashPassword] error:", err)
+		return "", err
+	}
+	return string(bytes), nil
 }
 
 func CheckPasswordHash(password, hash string) bool {

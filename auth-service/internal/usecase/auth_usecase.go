@@ -22,21 +22,29 @@ func NewAuthUsecase(repo domain.UserRepository, cfg *config.Config) *AuthUsecase
 }
 
 func (u *AuthUsecase) Register(ctx context.Context, user *domain.User) (string, error) {
-    user.Password = strings.TrimSpace(user.Password) // <- сначала trim
+	user.Password = strings.TrimSpace(user.Password)
+	fmt.Println("[Register] password before hashing:", user.Password)
+	hashedPassword, err := hash.HashPassword(user.Password)
+	if err != nil {
+		fmt.Println("[Register] hash error:", err)
+		return "", err
+	}
+	fmt.Println("[Register] hashed password:", hashedPassword)
+	user.Password = hashedPassword
+	user.Role = "user"
 
-    hashedPassword, err := hash.HashPassword(user.Password) // <- потом хэш
-    if err != nil {
-        return "", err
-    }
+	if err := u.repo.CreateUser(ctx, user); err != nil {
+		fmt.Println("[Register] create user error:", err)
+		return "", err
+	}
 
-    user.Password = hashedPassword
-    user.Role = "user"
-
-    if err := u.repo.CreateUser(ctx, user); err != nil {
-        return "", err
-    }
-
-    return jwt.GenerateToken(user.Email, user.Role, u.config.JWTSecret, u.config.JWTExpiresIn)
+	token, err := jwt.GenerateToken(user.Email, user.Role, u.config.JWTSecret, u.config.JWTExpiresIn)
+	if err != nil {
+		fmt.Println("[Register] token generation error:", err)
+		return "", err
+	}
+	fmt.Println("[Register] token generated:", token)
+	return token, nil
 }
 
 func (u *AuthUsecase) Login(ctx context.Context, email, password string) (string, error) {
@@ -46,13 +54,10 @@ func (u *AuthUsecase) Login(ctx context.Context, email, password string) (string
 		return "", errors.New("invalid email or password")
 	}
 
-	password = strings.TrimSpace(password) // trim входящий пароль
-
-	fmt.Println("[Login] provided password:", password)
-	fmt.Println("[Login] compare result:", hash.CheckPasswordHash(password, user.Password))
-
-	fmt.Println("[Login] user found:", user.Email)
-	fmt.Println("[Login] hashed password:", user.Password)
+	fmt.Println("[Login] raw password (before trim):", password)
+	password = strings.TrimSpace(password)
+	fmt.Println("[Login] trimmed password:", password)
+	fmt.Println("[Login] stored hash:", user.Password)
 
 	if !hash.CheckPasswordHash(password, user.Password) {
 		fmt.Println("[Login] password mismatch for email:", email)
@@ -67,17 +72,23 @@ func (u *AuthUsecase) Login(ctx context.Context, email, password string) (string
 		return "", err
 	}
 
-	fmt.Println("[Login] token generated for email:", email)
+	fmt.Println("[Login] token generated:", token)
 	return token, nil
 }
 
 func (u *AuthUsecase) GetProfile(ctx context.Context, email string) (*domain.User, error) {
-	return u.repo.GetUserByEmail(ctx, email)
+	user, err := u.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		fmt.Println("[GetProfile] error:", err)
+		return nil, err
+	}
+	return user, nil
 }
 
 func (u *AuthUsecase) UpdateProfile(ctx context.Context, email string, updated *domain.User) (*domain.User, error) {
 	user, err := u.repo.UpdateUser(ctx, email, updated)
 	if err != nil {
+		fmt.Println("[UpdateProfile] error:", err)
 		return nil, err
 	}
 	return user, nil
