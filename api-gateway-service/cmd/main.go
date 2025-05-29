@@ -7,6 +7,8 @@ import (
 	"api-gateway-service/internal/middleware"
 	"log"
 	"net/http"
+
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -31,12 +33,25 @@ func main() {
 	// Serve API under /api
 	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
 
-	// Serve static frontend files
-	fs := http.FileServer(http.Dir("../frontend-main")) // адаптируй путь под свою структуру
+	// Serve login page at /login
+	mainMux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../frontend-main/login.html")
+	})
+
+	// Serve other static files
+	fs := http.FileServer(http.Dir("../frontend-main"))
 	mainMux.Handle("/", fs)
 
+	// Add CORS
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080", "http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}).Handler(mainMux)
+
 	log.Println("Server running on http://localhost:8080")
-	if err := http.ListenAndServe(":8080", mainMux); err != nil {
+	if err := http.ListenAndServe(":8080", corsHandler); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -54,6 +54,7 @@
   </main>
 
   <script>
+    // Tab switching
     const loginTab = document.getElementById("login-tab");
     const registerTab = document.getElementById("register-tab");
     const loginSection = document.getElementById("login-section");
@@ -73,21 +74,89 @@
       loginSection.classList.remove("active");
     });
 
-    // Пример вывода сообщения (можно удалить если не нужно)
-    document.getElementById("login-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("login-message");
-      msg.textContent = "Logging in...";
-      msg.className = "message success";
-      msg.style.display = "block";
-    });
+    // Form handlers with proper API calls
+    document.addEventListener('DOMContentLoaded', () => {
+      // Login
+      const loginForm = document.getElementById('login-form');
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const msgElement = document.getElementById("login-message");
+          msgElement.textContent = "Logging in...";
+          msgElement.className = "message";
+          msgElement.style.display = "block";
 
-    document.getElementById("register-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("register-message");
-      msg.textContent = "Registering...";
-      msg.className = "message success";
-      msg.style.display = "block";
+          try {
+            const email = loginForm.querySelector('input[type="email"]').value;
+            const password = loginForm.querySelector('input[type="password"]').value;
+
+            const res = await fetch('http://localhost:8080/api/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              localStorage.setItem('token', data.token);
+              msgElement.textContent = "Login successful!";
+              msgElement.className = "message success";
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 1000);
+            } else {
+              const error = await res.text();
+              msgElement.textContent = 'Login failed: ' + error;
+              msgElement.className = "message error";
+            }
+          } catch (err) {
+            msgElement.textContent = 'Network error: ' + err.message;
+            msgElement.className = "message error";
+          }
+        });
+      }
+
+      // Register
+      const registerForm = document.getElementById('register-form');
+      if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const msgElement = document.getElementById("register-message");
+          msgElement.textContent = "Registering...";
+          msgElement.className = "message";
+          msgElement.style.display = "block";
+
+          try {
+            const name = registerForm.querySelector('input[type="text"]').value;
+            const email = registerForm.querySelector('input[type="email"]').value;
+            const password = registerForm.querySelector('input[type="password"]').value;
+
+            const res = await fetch('http://localhost:8080/api/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, email, password })
+            });
+
+            if (res.ok) {
+              msgElement.textContent = 'Registration successful! Please login.';
+              msgElement.className = "message success";
+              setTimeout(() => {
+                document.getElementById('login-tab').click();
+                msgElement.style.display = "none";
+              }, 2000);
+            } else {
+              const error = await res.text();
+              msgElement.textContent = 'Registration failed: ' + error;
+              msgElement.className = "message error";
+            }
+          } catch (err) {
+            msgElement.textContent = 'Network error: ' + err.message;
+            msgElement.className = "message error";
+          }
+        });
+      }
     });
   </script>
 </body>
