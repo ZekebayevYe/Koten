@@ -54,6 +54,10 @@ func main() {
 		http.ServeFile(w, r, "../frontend-main/login.html")
 	})
 
+	mainMux.HandleFunc("/report", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../frontend-main/index.html")
+	})
+
 	fs := http.FileServer(http.Dir("../frontend-main"))
 	mainMux.Handle("/", fs)
 

@@ -7,5 +7,4 @@ use (
 	./documents-service
 	./notification-service
 	./report-news-service
-	./notification-service
 )

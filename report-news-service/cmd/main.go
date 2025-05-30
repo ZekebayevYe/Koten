@@ -64,14 +64,14 @@ func main() {
 
 	// gRPC server
 	go func() {
-		lis, err := net.Listen("tcp", ":50051")
+		lis, err := net.Listen("tcp", ":50055")
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		grpcServer := grpc.NewServer()
 		proto.RegisterReportServiceServer(grpcServer, rHandler)
 		proto.RegisterNewsServiceServer(grpcServer, nHandler)
-		log.Println("gRPC server running at :50051")
+		log.Println("gRPC server running at :50055")
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Fatalf("failed to serve: %v", err)
 		}
@@ -79,5 +79,5 @@ func main() {
 
 	// HTTP server stub
 	r := gin.Default()
-	r.Run(":8080")
+	r.Run(":8082")
 }
