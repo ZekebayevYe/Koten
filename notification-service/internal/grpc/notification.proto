@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package notification;
+
+option go_package = "github.com/ZekebayevYe/notification-service/internal/grpc;grpc";
+
+message EmailRequest {
+  string email = 1;
+  string street = 2;
+  string house = 3;
+}
+
+
+message Notification {
+  string id = 1;
+  string title = 2;
+  string message = 3;
+  int64 send_at = 4;
+  string street = 5;
+}
+
+
+message Empty {}
+
+message NotificationList {
+  repeated Notification items = 1;
+}
+
+service NotificationService {
+  rpc Subscribe(EmailRequest) returns (Empty);
+  rpc Unsubscribe(EmailRequest) returns (Empty);
+  rpc CreateNotification(Notification) returns (Empty);
+  rpc GetHistory(Empty) returns (NotificationList);
+
+}

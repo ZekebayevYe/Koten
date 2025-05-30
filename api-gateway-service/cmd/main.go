@@ -19,6 +19,10 @@ func main() {
 		Client: authClient,
 		Cfg:    cfg,
 	}
+	notifClient := client.NewNotificationServiceClient(cfg)
+
+	authHandler := &handler.AuthHandler{Client: authClient, Cfg: cfg}
+	notifHandler := &handler.NotificationHandler{Client: notifClient, Auth: authClient, Cfg: cfg}
 
 	apiMux := http.NewServeMux()
 	apiMux.HandleFunc("/register", authHandler.Register)
@@ -37,6 +41,11 @@ func main() {
 	newsHandler := &handler.NewsHandler{Client: newsClient}
 
 	apiMux.Handle("/news", middleware.AuthMiddleware(cfg, http.HandlerFunc(newsHandler.GetNews)))
+
+	apiMux.Handle("/notifications/subscribe", middleware.AuthMiddleware(cfg, http.HandlerFunc(notifHandler.Subscribe)))
+	apiMux.Handle("/notifications/unsubscribe", middleware.AuthMiddleware(cfg, http.HandlerFunc(notifHandler.Unsubscribe)))
+	apiMux.Handle("/notifications/create", middleware.AuthMiddleware(cfg, http.HandlerFunc(notifHandler.CreateNotification)))
+	apiMux.Handle("/notifications/history", middleware.AuthMiddleware(cfg, http.HandlerFunc(notifHandler.GetHistory)))
 
 	mainMux := http.NewServeMux()
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utility Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-K7ZVTfLl1u+N2jCHguKyZTw7MP7CwK52CDGF9ztQ0xDAl5y5e+1BbknuPYVt1eLAXQjLEcRw+vR8hv2ztld7Hg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+<header>
+  <h1>Welcome to notification section</h1>
+  <nav>
+    <button id="btn-report" onclick="showSection('report')" class="active"><i class="fas fa-file-alt"></i> Reports</button>
+    <button id="btn-news" onclick="showSection('news')"><i class="fas fa-newspaper"></i> News</button>
+    <button id="btn-notifications" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications</button>
+    <button id="btn-profile" onclick="showSection('profile')"><i class="fas fa-user"></i> Profile</button>
+  </nav>
+</header>
+
+<main>
+  <section class="section" id="notifications">
+    <h2 class="section-title">Уведомления</h2>
+
+    <div class="button-group">
+      <button class="btn primary" onclick="subscribe()">Подписаться</button>
+      <button class="btn danger" onclick="unsubscribe()">Отписаться</button>
+    </div>
+
+    <form onsubmit="createNotification(event)" class="notif-form">
+      <input type="text" id="title" placeholder="Заголовок" required>
+      <input type="text" id="message" placeholder="Сообщение" required>
+      <input type="text" id="street" placeholder="Улица" required>
+      <input type="datetime-local" id="send_at" required>
+      <button class="btn success" type="submit">Создать уведомление</button>
+    </form>
+
+    <div class="history-section">
+      <h3>История уведомлений:</h3>
+      <button class="btn" onclick="loadNotificationHistory()">Обновить</button>
+      <div id="notification-history" class="notif-list"></div>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast-container"></div>
+
+<footer style="text-align:center;margin-top:30px;color:#777;font-size:14px;">
+  &copy; 2025 Utility Management Platform
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
