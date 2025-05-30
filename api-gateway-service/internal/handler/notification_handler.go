@@ -2,11 +2,13 @@ package handler
 
 import (
 	"api-gateway-service/config"
-	authpb "api-gateway-service/proto"
-	notificationpb "api-gateway-service/proto"
+	authpb "api-gateway-service/proto/auth"
+	notificationpb "api-gateway-service/proto/notification"
 	"context"
 	"encoding/json"
 	"net/http"
+
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 type NotificationHandler struct {
@@ -95,7 +97,8 @@ func (h *NotificationHandler) GetHistory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	res, err := h.Client.GetHistory(context.Background(), &notificationpb.Empty{})
+	res, err := h.Client.GetHistory(context.Background(), &emptypb.Empty{})
+
 	if err != nil {
 		http.Error(w, "failed to get history", http.StatusInternalServerError)
 		return

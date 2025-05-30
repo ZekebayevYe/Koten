@@ -21,7 +21,6 @@ func main() {
 	}
 	notifClient := client.NewNotificationServiceClient(cfg)
 
-	authHandler := &handler.AuthHandler{Client: authClient, Cfg: cfg}
 	notifHandler := &handler.NotificationHandler{Client: notifClient, Auth: authClient, Cfg: cfg}
 
 	apiMux := http.NewServeMux()

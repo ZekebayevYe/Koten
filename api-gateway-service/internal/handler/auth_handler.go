@@ -2,7 +2,7 @@ package handler
 
 import (
 	"api-gateway-service/config"
-	pb "api-gateway-service/proto"
+	pb "api-gateway-service/proto/auth"
 	"context"
 	"encoding/json"
 	"fmt"

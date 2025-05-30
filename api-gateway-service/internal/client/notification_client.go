@@ -2,7 +2,7 @@ package client
 
 import (
 	"api-gateway-service/config"
-	notificationpb "api-gateway-service/proto"
+	notificationpb "api-gateway-service/proto/notification"
 	"log"
 
 	"google.golang.org/grpc"

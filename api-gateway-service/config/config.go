@@ -11,6 +11,8 @@ type Config struct {
 	AuthServiceAddr         string
 	NotificationServiceAddr string
 	JWTSecret               string
+	NewsServiceAddr         string
+	ReportServiceAddr       string
 }
 
 func Load() *Config {
@@ -23,5 +25,7 @@ func Load() *Config {
 		AuthServiceAddr:         os.Getenv("AUTH_SERVICE_ADDR"),
 		JWTSecret:               os.Getenv("JWT_SECRET"),
 		NotificationServiceAddr: os.Getenv("NOTIFICATION_SERVICE_ADDR"),
+		NewsServiceAddr:         os.Getenv("NEWS_SERVICE_ADDR"),
+		ReportServiceAddr:       os.Getenv("REPORT_SERVICE_ADDR"),
 	}
 }
