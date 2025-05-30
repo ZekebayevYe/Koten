@@ -35,15 +35,21 @@ func main() {
 	svc := app.NewService(repo, mailer, ttl)
 
 	go messaging.SubscribeNotifications(func(n model.Notification) {
-		log.Println("Получено уведомление из NATS:", n)
+		log.Println(" Получено уведомление из NATS:", n)
 
-		subs, err := repo.ListSubscribers(context.Background())
+		subs, err := repo.ListSubscribersByStreet(context.Background(), n.Street)
 		if err != nil {
-			log.Println("не удалось получить подписчиков:", err)
+			log.Println(" Не удалось получить подписчиков:", err)
 			return
 		}
 
-		log.Println("отправка письма на адреса:", subs)
+		log.Println(" Отправка письма на адреса:", subs)
+
+		if len(subs) == 0 {
+			log.Println("⚠ Нет подписчиков для этой улицы:", n.Street)
+			return
+		}
+
 		mailer.SendNotification(n, subs)
 	})
 

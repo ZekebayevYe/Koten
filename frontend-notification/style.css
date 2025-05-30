@@ -1,0 +1,88 @@
+.section {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.btn.primary {
+  background: #007bff;
+  color: white;
+}
+.btn.primary:hover {
+  background: #0062cc;
+}
+
+.btn.danger {
+  background: #dc3545;
+  color: white;
+}
+.btn.danger:hover {
+  background: #bd2130;
+}
+
+.btn.success {
+  background: #28a745;
+  color: white;
+}
+.btn.success:hover {
+  background: #1e7e34;
+}
+
+.notif-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.notif-form input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.history-section {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.notif-list {
+  margin-top: 15px;
+  text-align: left;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+.notif-list div {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}

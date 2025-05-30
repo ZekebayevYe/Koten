@@ -22,6 +22,8 @@ func (m *Mailer) SendNotification(n app.Notification, to []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	log.Printf("Mailer.SendNotification вызван:\n→ subject: %s\n→ message: %s\n→ to: %v\n", n.Title, n.Message, to)
+
 	msg := m.client.Email.NewMessage()
 	msg.SetFrom(mailersend.From{
 		Name:  "Коммунсервис",
@@ -41,9 +43,11 @@ func (m *Mailer) SendNotification(n app.Notification, to []string) {
 	msg.Text = n.Message
 	msg.HTML = "<p>" + n.Message + "</p>"
 
-	if _, err := m.client.Email.Send(ctx, msg); err != nil {
-		log.Printf("MailerSend error: %v", err)
+	_, err := m.client.Email.Send(ctx, msg)
+	if err != nil {
+		log.Printf("MailerSend ошибка: %v", err)
+		return
 	}
-	log.Println("⏳ Отправляю письмо на:")
 
+	log.Println("MailerSend успешно отправил письмо")
 }

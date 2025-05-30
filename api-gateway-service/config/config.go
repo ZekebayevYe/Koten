@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	AuthServiceAddr string
-	JWTSecret       string
+	AuthServiceAddr         string
+	NotificationServiceAddr string
+	JWTSecret               string
 }
 
 func Load() *Config {
@@ -19,7 +20,8 @@ func Load() *Config {
 	}
 
 	return &Config{
-		AuthServiceAddr: os.Getenv("AUTH_SERVICE_ADDR"),
-		JWTSecret:       os.Getenv("JWT_SECRET"),
+		AuthServiceAddr:         os.Getenv("AUTH_SERVICE_ADDR"),
+		JWTSecret:               os.Getenv("JWT_SECRET"),
+		NotificationServiceAddr: os.Getenv("NOTIFICATION_SERVICE_ADDR"),
 	}
 }

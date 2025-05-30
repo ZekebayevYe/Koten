@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package notification;
 
-option go_package = "github.com/ZekebayevYe/notification-service/internal/grpc;grpc";
+option go_package = "api-gateway-service/proto;notification";
 
 message EmailRequest {
   string email = 1;
